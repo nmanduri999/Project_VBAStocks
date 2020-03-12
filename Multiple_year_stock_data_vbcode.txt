@@ -1,0 +1,94 @@
+Sub TickerTracker()
+    For Each ws In Worksheets
+    
+    
+    Dim StockTotal As Double
+    Dim tableRow As Integer
+    Dim Yearly_Change As Double
+    Dim Percent_Change As Double
+    Dim Grt_Inc As Double
+    Dim Grt_Dec As Double
+    Dim Grt_Ttl_Vol As Double
+    Dim Grt_Inc_Row As Double
+    Dim Grt_Dec_Row As Double
+    Dim Grt_Ttl_Vol_Row As Double
+    counter = 0
+    tableRow = 2
+        
+    
+        Dim worksheetName As String
+        lastrow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+        ws.Range("J1").Value = "Ticker"
+        ws.Range("K1").Value = "Yearly Change"
+        ws.Range("L1").Value = "Percent Change"
+        ws.Range("M1").Value = "Total Stock Volume"
+        
+        
+        ws.Range("P1").Value = "Ticker"
+        ws.Range("Q1").Value = "Value"
+        ws.Range("O2").Value = "Greatest % Increase"
+        ws.Range("O3").Value = "Greatest % Decrease"
+        ws.Range("O4").Value = "Greatest Total Volume"
+        
+        
+               
+        For i = 2 To lastrow
+            
+            
+            If ws.Cells(i + 1, 1).Value = ws.Cells(i, 1).Value Then
+                StockTotal = StockTotal + ws.Cells(i, 7).Value
+                counter = counter + 1
+              
+                               
+            Else
+                ws.Range("J" & tableRow).Value = ws.Cells(i, 1).Value
+                Yearly_Change = ws.Cells(i, 6).Value - ws.Cells(i - counter + 1, 3).Value
+                ws.Range("K" & tableRow).Value = Yearly_Change
+                
+                    If ws.Cells(i - counter + 1, 3).Value = 0 Then
+                        Percent_Change = 0
+                    Else
+                         Percent_Change = Yearly_Change / ws.Cells(i - counter + 1, 3).Value
+                    End If
+                    
+                ws.Range("L" & tableRow).Value = Percent_Change
+                ws.Range("L" & tableRow).NumberFormat = "0.00%"
+                ws.Range("M" & tableRow).Value = StockTotal
+                StockTotal = 0
+                tableRow = tableRow + 1
+                counter = 0
+            End If
+            
+            If ws.Range("K" & tableRow).Value < 0 Then
+            
+                ws.Range("K" & tableRow).Interior.ColorIndex = 3
+            Else
+                ws.Range("K" & tableRow).Interior.ColorIndex = 4
+            End If
+                       
+           Next i
+           
+         lastrow = ws.Cells(Rows.Count, 10).End(xlUp).Row
+         Grt_Inc = WorksheetFunction.Max(ws.Range("L2:L" & lastrow))
+         ws.Cells(2, 17).Value = Grt_Inc
+         ws.Cells(2, 17).NumberFormat = "0.00%"
+         Grt_Inc_Row = WorksheetFunction.Match(Grt_Inc, ws.Range("L2:L" & lastrow), 0)
+         ws.Cells(2, 16).Value = ws.Cells(Grt_Inc_Row, 10).Value
+         
+         Grt_Dec = WorksheetFunction.Min(ws.Range("L2:L" & lastrow))
+         ws.Cells(3, 17).Value = Grt_Dec
+         ws.Cells(3, 17).NumberFormat = "0.00%"
+         Grt_Dec_Row = WorksheetFunction.Match(Grt_Dec, ws.Range("L2:L" & lastrow), 0)
+         ws.Cells(3, 16).Value = ws.Cells(Grt_Dec_Row, 10).Value
+         
+         Grt_Ttl_Vol = WorksheetFunction.Max(ws.Range("M2:M" & lastrow))
+         ws.Cells(4, 17).Value = Grt_Ttl_Vol
+         Grt_Ttl_Vol_Row = WorksheetFunction.Match(Grt_Ttl_Vol, ws.Range("M1:M" & lastrow), 0)
+         ws.Cells(4, 16).Value = ws.Cells(Grt_Ttl_Vol_Row, 10).Value
+         
+         ws.Columns("J:Q").AutoFit
+                         
+    Next ws
+End Sub
+
+
